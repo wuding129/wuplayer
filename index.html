@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FM</title>
+    <link rel="stylesheet" href="./fonts/font-awesome/css/font-awesome.min.css">
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .fl{
+            float: left;
+        }
+        .fr{
+            float: right;
+        }
+        .clear-float{
+            overflow: hidden;
+        }
+
+        li{
+            list-style: none;
+        }
+
+        a{
+            text-decoration: none;
+            color: #000;
+        }
+        .wrap{
+            width:700px;
+            height:250px;
+            margin:20px auto;
+            background-color: #f3f3f3;
+
+            position:relative;
+        }
+
+
+
+        .music-section,.cover{
+            height: 200px;
+            padding: 15px;
+            /*display: inline-block;*/
+            /*font-size: 12px;*/
+        }
+        .music-section{
+            width: 60%;
+        }
+        .audio-section{
+            padding:10px 0;
+        }
+        /*时间*/
+        .time,.vol-btn{
+            float: left;
+        }
+        .time{
+            padding-right:11px;
+        }
+        .vol{
+            width:16px;
+            height:16px;
+        }
+        /*音量*/
+        .vol-btn{
+            position: relative;
+            width:15px;
+        }
+        .vol-btn:hover{
+            width: 85px;
+        }
+        .vol-btn:hover .full-vol,.vol-btn:hover .vol-bar{
+            width:70px;
+        }
+        /*.vol-btn:hover .current-vol{
+            width:50%;
+        }*/
+        .vol-bar{
+            height:18px;
+            width:0;
+
+            background-color: transparent;
+            position: absolute;
+            left:19px;
+            top:0;
+            padding-top:8px;
+        }
+        .full-vol,.current-vol{
+            -webkit-transition: width .5s;
+            -moz-transition: width .5s;
+            -ms-transition: width .5s;
+            -o-transition: width .5s;
+            transition: width .5s;
+        }
+        .full-vol{
+            /*display: none;*/
+            height:2px;
+            width:0;
+            background-color: #ddd;
+
+        }
+        .current-vol{
+            width:0;
+            /*position: absolute;*/
+            /*top:0;*/
+            /*left:0;*/
+            height:2px;
+            background-color: #aaa;
+        }
+
+
+
+        .progress-bar-wrap{
+            background-color: transparent;
+            height: 1px;
+            margin: 13px 0;
+            padding: 2px 0;
+            cursor: pointer;
+        }
+        .full-progress-bar,.current-progess-bar{
+
+            height:0;
+            border-top: 1px solid #ccc;
+        }
+        .full-progress-bar{
+            position: relative;
+            width:100%;
+            /*margin: 15px 0;*/
+
+        }
+        .current-progess-bar{
+            position: absolute;
+            top:0;
+            left:0;
+            width: 0;
+            border-color: #8bff00;
+        }
+
+
+        .control-section{
+            padding: 15px 0;
+
+            font-size: 0;
+        }
+        .control-section a{
+            font-size: 25px;
+            display: inline-block;
+        }
+        .control-btn{
+            cursor: pointer;
+        }
+        .control-btn-group{
+
+        }
+        .downloadBtn,.del,.play-pause{
+            margin:0 15px;
+        }
+        .play-pause{
+            display: inline-block;
+            min-width: 22px;
+            margin-left:22px;
+        }
+
+        .cover{
+            width: 30%;
+            -webkit-border-radius:50%;
+            -moz-border-radius:50%;
+            border-radius:50%;
+            border: 1px solid #eee;
+            background: url(https://img3.doubanio.com/lpic/s3666735.jpg) no-repeat;
+            -webkit-background-size: cover;
+        }
+
+        .music-list{
+            display: none;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            /*margin-top: 15px;*/
+            border:1px solid #eeeeee;
+            height:250px;
+            width: 300px;
+            overflow: auto;
+            clear: both;
+            position: absolute;
+            right: -302px;
+            top:0;
+        }
+        .list-li{
+            padding: 5px 5px 5px 15px;
+            background-color: #fff;
+            margin-bottom:5px;
+            font-size: 13px;
+            color: #aaa;
+            cursor: pointer;
+        }
+        .list-li:hover{
+            color: #888;
+
+        }
+        .list-li.active{
+            color: #555;
+            font-weight:bold;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="wrap" id="wrap">
+        <div class="music-section fl">
+            <div class="info">
+                <h2 class="name">未知</h2>
+                <h4 class="singer">未知</h4>
+            </div>
+            <div class="audio-section">
+                <div class="audio-info clear-float">
+                    <div class="fl">
+                        <span class="time" id="restTime">-00:00</span>
+                        <div class="control-btn vol-btn">
+                            <a href="javascript:void(0)">
+                                <span class="vol fa fa-volume-up" id="vol"></span>
+                            </a>
+                            <a href="javascript:void(0)">
+                                <div class="vol-bar">
+                                    <div class="full-vol">
+                                        <div class="current-vol"></div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="fr">
+                        <a href="javascript:void(0)">
+                            <span class="lyrics fa fa-file-text-o control-btn" id="lyricsBtn"></span>
+                        </a>
+
+                        <a href="javascript:void(0)" download="#" class="downloadBtn" id="downloadBtn">
+                            <span class="fa fa-download control-btn" ></span>
+                        </a>
+                        <a href="javascript:void(0)">
+                            <span class="shareBtn fa fa-share-alt control-btn" id="shareBtn"></span>
+                        </a>
+                    </div>
+                </div>
+                <a href="javascript:void(0)">
+                    <div class="progress-bar-wrap">
+                        <div class="full-progress-bar">
+                            <div class="current-progess-bar"></div>
+                        </div>
+                    </div>
+                </a>
+
+                <audio id="audioPlayer" src="./audios/矜持-王菲.mp3">
+                    Your browser does not support the <code>audio</code> element.
+                </audio>
+            </div>
+            <div class="control-section clear-float">
+                <div class="fl">
+                    <a href="javascript:void(0)">
+                        <span class="like fa fa-heart control-btn" id="likeBtn"></span>
+                    </a>
+                    <a href="javascript:void(0)" class="del">
+                        <span class="fa fa-trash control-btn" id="delBtn"></span>
+                    </a>
+
+                    <a href="javascript:void(0)">
+                        <span class="list-btn fa fa-list-ul control-btn" id="musicListBtn"></span>
+                    </a>
+                </div>
+                <div class="fr">
+                    <a href="javascript:void(0)">
+                        <span class="pre fa fa-step-backward control-btn" id="preBtn"></span>
+                    </a>
+                    <a href="javascript:void(0)" class="play-pause">
+                        <span class="fa fa-play control-btn" id="startAndPauseBtn"></span>
+                    </a>
+                    <a href="javascript:void(0)">
+                        <span class="next fa fa-step-forward control-btn" id="nextBtn"></span>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+        <div class="cover fr">
+        </div>
+        <div class="music-list" id="musicList"></div>
+    </div>
+</body>
+<script>
+    window.onload = function () {
+        var audioPlayer = document.getElementById('audioPlayer')
+        var wrap = document.getElementById('wrap')
+        var musicList = document.getElementById('musicList')
+        var musicListBtn = document.getElementById('musicListBtn')
+        var musicLi
+//        var listPlay = true,
+//            listLoop = false,
+//            singleCycle
+
+        // todo 设置播放列表数据
+        var playListDefault = [
+            {
+                "id": 1,
+                "name":"沙龙",
+                "pic": "https://img3.doubanio.com/lpic/s3666735.jpg",
+                "path":"./audios/沙龙-陈奕迅.mp3",
+                "isPlay": true
+            },
+            {
+                "id": 2,
+                "name":"矜持",
+                "pic":"https://img3.doubanio.com/lpic/s3681285.jpg",
+                "path":"./audios/矜持-王菲.mp3",
+                "isPlay": false
+            },
+            {
+                "id": 3,
+                "name":"恋人未满",
+                "pic":"https://img3.doubanio.com/lpic/s27051645.jpg",
+                "path":"./audios/恋人未满-S.H.E.mp3",
+                "isPlay": false
+            }
+        ]
+        var playList
+        if(localStorage.getItem('playList')){
+            playList = JSON.parse(localStorage.getItem('playList'))
+        } else {
+            localStorage.setItem('playList',JSON.stringify(playListDefault))
+            playList = playListDefault
+        }
+
+
+        // 当前正在播的音乐
+        var playingIndex
+        playList.forEach(function (item, index) {
+            if(item.isPlay){
+                audioPlayer.src = item.path
+                playingIndex = index || 0
+            }
+        })
+
+
+        // todo 点击是否喜欢此歌曲
+
+        var isLike = false,
+            likeBtn = document.getElementById('likeBtn')
+        function like() {
+            isLike = !isLike
+            likeBtn.classList.toggle('red-icon')
+            console.log('是否喜欢：' + isLike)
+        }
+        likeBtn.addEventListener('click', like, false)
+
+
+        // todo 从列表里删除
+        var delBtn = document.getElementById('delBtn')
+        function del() {
+            // todo 弹框确认删除
+            console.log('是否删除？')
+            // todo 确认后发送ajax事件，并获取下一首
+        }
+        delBtn.addEventListener('click', del, false)
+
+        // todo 点击切换下一首
+        var nextBtn = document.getElementById('nextBtn')
+        function next() {
+            console.log('下一首')
+            musicLi = document.getElementsByClassName('list-li')
+            if(playingIndex>=playList.length-1)
+                playingIndex = 0
+            else
+                playingIndex++
+            playList.forEach(function(item){
+                item.isPlay = false
+            })
+            playList[playingIndex].isPlay = true
+            Array.prototype.forEach.call(musicLi,function (item) {
+                item.classList.remove('active')
+            })
+            musicLi[playingIndex].classList.add('active')
+            audioPlayer.src=playList[playingIndex].path
+            localStorage.setItem('playList',JSON.stringify(playList))
+            clearInterval(changeWidthInterval)
+            initRestTime(audioPlayer, restTimeNode)
+            initCurrentProgressBarWidth(currentProgressBar, 0)
+            startAndPauseBtn.classList.remove('fa-pause')
+            play()
+        }
+        nextBtn.addEventListener('click', next, false)
+        // todo 点击切换上一首
+        var preBtn = document.getElementById('preBtn')
+        function pre() {
+            // todo 判断是否第一首，有无上一首，有切换，没有弹出提示
+            console.log('上一首')
+            musicLi = document.getElementsByClassName('list-li')
+            if(playingIndex<=0)
+                playingIndex = playList.length-1
+            else
+                playingIndex--
+            playList.forEach(function(item){
+                item.isPlay = false
+            })
+            playList[playingIndex].isPlay = true
+            Array.prototype.forEach.call(musicLi,function (item) {
+                item.classList.remove('active')
+            })
+            musicLi[playingIndex].classList.add('active')
+            audioPlayer.src=playList[playingIndex].path
+            localStorage.setItem('playList',JSON.stringify(playList))
+            clearInterval(changeWidthInterval)
+            initRestTime(audioPlayer, restTimeNode)
+            initCurrentProgressBarWidth(currentProgressBar, 0)
+            startAndPauseBtn.classList.remove('fa-pause')
+            play()
+        }
+        preBtn.addEventListener('click', pre, false)
+        // todo 显示/隐藏歌词面板
+        function showLyrics() {
+
+        }
+
+        // todo 根据播放进度匹配当前歌词，自动滚动，
+        // todo 手动滚动后暂停自动滚动，不操作3秒后继续匹配当前歌词，自动滚动
+
+
+        // todo 下载歌曲
+//        var downloadBtn  = document.querySelector('#downloadBtn')
+//        function download() {
+//            var path = playList[playingIndex].path
+//            window.open(path)
+//        }
+//        downloadBtn.addEventListener('click', download, false)
+        // todo 分享歌曲，弹出分享选择窗，点击其他地方关闭
+        function share() {
+
+        }
+
+
+        // todo 显示/隐藏播放列表
+
+        var isListShow = false
+        var isntFirst = false
+        // 用来比较时用
+        var playListCache = JSON.stringify(playList)
+        function generateList() {
+            var playListStr = ''
+            var classList = ''
+            playList.forEach(function(item, index){
+                if(item.isPlay){
+                    classList = 'list-li active'
+                }else{
+                    classList = 'list-li'
+                }
+                playListStr +='<li class="'+classList+'"><span>'+(index+1)+'.</span>'+item.name+'</li>'
+            })
+            playListStr = '<ul>'+playListStr+'</ul>'
+            musicList.innerHTML = playListStr
+            musicLi = document.getElementsByClassName('list-li')
+            Array.prototype.forEach.call(musicLi,function (item, index) {
+                item.addEventListener('dblclick', function (event) {
+                    [].forEach.call(musicLi,function (item2) {
+                        item2.classList.remove('active')
+                    })
+                    event.target.classList.add('active')
+                    audioPlayer.src=playList[index].path
+                    playList.forEach(function(item){
+                        item.isPlay = false
+                    })
+                    playList[index].isPlay = true
+                    playingIndex = index
+                    localStorage.setItem('playList',JSON.stringify(playList))
+                    clearInterval(changeWidthInterval)
+                    initRestTime(audioPlayer, restTimeNode)
+                    initCurrentProgressBarWidth(currentProgressBar, 0)
+                    startAndPauseBtn.classList.remove('fa-pause')
+                    play()
+                }, false)
+            })
+        }
+        generateList()
+        function showList() {
+            isListShow = !isListShow
+            musicList.style.display = isListShow
+                ?'block'
+                :'none'
+            if(isntFirst && playListCache === JSON.stringify(playList)){
+                return false
+            }
+
+            generateList()
+            isntFirst = true
+
+        }
+
+        musicListBtn.addEventListener('click', showList, false)
+
+        /**
+         * 播放信息相关
+         */
+
+        // todo 切换播放模式
+
+
+        // todo 根据已经播放秒数比上总秒数算进度条长度
+        // todo 获取进度条完整长度
+        var getWidth = function (obj) {
+            return obj.offsetWidth
+        }
+        var fullProgressBar = document.querySelector('.full-progress-bar')
+        var currentProgressBar = document.querySelector('.current-progess-bar')
+        // 初始化长度
+        var initCurrentProgressBarWidth = function (initObj, initWidth) {
+            initObj.style.width = initWidth + 'px'
+        }
+        initCurrentProgressBarWidth(currentProgressBar, 0)
+        var fullWidth = getWidth(fullProgressBar)
+
+        // todo 获取当前进度条长度
+        var getCurrentWidth = function (audioObj,targetObj) {
+            var rate = audioObj.currentTime/audioObj.duration
+            return targetObj.style.width = fullWidth*rate + 'px'
+        }
+
+
+
+        // todo 根据总秒数减去已经播放秒数算剩余时长，
+        // todo 格式化为-00：00：00，没有超过一小时不显示小时位
+        var formateTime = function (str) {
+            str = +str<10
+                ?'0'+str
+                :str
+            return str
+        }
+
+        var timeFn = function (time) {
+            var h,m,s
+            h = parseInt(time/3600)+''
+            m = parseInt((time-h*3600)/60)+''
+            s = parseInt(time-h*3600-m*60)+''
+
+            h = formateTime(h)
+            m = formateTime(m)
+            s = formateTime(s)
+            return {
+                h: h,
+                m: m,
+                s: s
+            }
+        }
+        var getTimeStr = function (timeObj) {
+            var hStr = +timeObj.h?(timeObj.h+':'):(audioPlayer.duration>3600)?'00:':'',
+                mStr = +timeObj.m?timeObj.m+':':'00:',
+                sStr = +timeObj.s?timeObj.s:'00'
+            return hStr + mStr + sStr
+        }
+        function getRestTime(time) {
+            var currentRestTime, timeObj
+
+            timeObj = timeFn(time)
+            return currentRestTime = getTimeStr(timeObj)
+        }
+
+        // todo 播放开始/暂停
+        var startAndPauseBtn = document.getElementById('startAndPauseBtn'),
+            restTimeNode = document.getElementById('restTime'),
+            changeWidthInterval
+
+        function initRestTime(audioObj, restTimeNode) {
+            restTimeNode.innerHTML = '-' + getRestTime(audioObj.duration)
+        }
+        audioPlayer.addEventListener('loadedmetadata',function () {
+            initRestTime(audioPlayer, restTimeNode)
+        }, false)
+
+
+        var name = document.querySelector('.name')
+        var singer = document.querySelector('.singer')
+        var cover  = document.querySelector('.cover ')
+        var downloadBtn  = document.querySelector('#downloadBtn')
+
+        function play(){
+//            audioPlayer.currentTime = 100
+            name.innerHTML = playList[playingIndex].name || '未知'
+            singer.innerHTML = playList[playingIndex].singer || playList[playingIndex].path.match(/-\S*[^.mp3]/)[0].substring(1) || '未知'
+            cover.style.backgroundImage = "url("+playList[playingIndex].pic  || ''+")"
+
+            downloadBtn.href = playList[playingIndex].path
+            downloadBtn.download = playList[playingIndex].path.match(/[^./audios/]\S*/)
+            if(audioPlayer.paused || audioPlayer.ended){
+                audioPlayer.play()
+                changeWidthInterval = setInterval(function () {
+                    getCurrentWidth(audioPlayer, currentProgressBar)
+                    var rest = audioPlayer.duration - audioPlayer.currentTime
+                    restTimeNode.innerHTML = '-'+getRestTime(rest)
+                    if(audioPlayer.ended){
+                        if(!audioPlayer.loop&&playList.length-1>playingIndex){
+                            next()
+                            return false
+                        }
+                        clearInterval(changeWidthInterval)
+                        initRestTime(audioPlayer, restTimeNode)
+                        initCurrentProgressBarWidth(currentProgressBar, 0)
+                        startAndPauseBtn.classList.toggle('fa-pause')
+                    }
+                },500)
+
+            }else{
+                audioPlayer.pause()
+                if(changeWidthInterval)
+                    clearInterval(changeWidthInterval)
+//                console.log('当前播放位置1'+ audioPlayer.played.start(0))
+//                console.log('当前播放位置1'+ audioPlayer.played.end(0))
+
+            }
+            startAndPauseBtn.classList.toggle('fa-pause')
+        }
+        startAndPauseBtn.addEventListener('click', play, false)
+
+        var progressBarWrap = document.querySelector('.progress-bar-wrap')
+        // todo 点击调整播放位置
+        function changeCurrentTime(audioObj, startSecond) {
+            if(startSecond<0 || startSecond>audioObj.duration)
+                return false
+            audioObj.currentTime = startSecond
+            getCurrentWidth(audioPlayer, currentProgressBar)
+        }
+        progressBarWrap.addEventListener('click', changeAudioStartFn, false)
+        function changeAudioStartFn(event) {
+            // 用event.target.offsetLeft有时因为冒泡有问题
+            var rate = (event.clientX-progressBarWrap.offsetParent.offsetLeft-progressBarWrap.offsetLeft)/progressBarWrap.offsetWidth
+
+            changeCurrentTime(audioPlayer, rate*audioPlayer.duration)
+        }
+
+        // todo 调整音量，hover效果，点击调整大小，大小0-1
+        var volBtn        = document.querySelector('.vol-btn'),
+            volBarWrap    = document.querySelector('.vol-bar'),
+            currentValBAr = document.querySelector('.current-vol'),
+            muteBtn       = document.querySelector('#vol')
+        // 用来存宽度
+        var widthStore = 35
+
+        // todo 计算音量大小
+        var changeVol = function (event) {
+
+            widthStore = event.clientX-wrap.offsetLeft-volBarWrap.offsetParent.offsetLeft-volBarWrap.offsetLeft
+
+            currentValBAr.style.width = widthStore + 'px'
+            audioPlayer.volume = widthStore/volBarWrap.offsetWidth
+
+            if(isMute)
+                muteFn()
+        }
+
+        var mouseoverFn = function (event) {
+            currentValBAr.style.width = widthStore + 'px'
+        }
+        var mouseoutFn = function (event) {
+            currentValBAr.style.width = '0px'
+        }
+        volBtn.addEventListener('mouseover',mouseoverFn, false)
+        volBtn.addEventListener('mouseout',mouseoutFn, false)
+        volBarWrap.addEventListener('click',changeVol ,false)
+        muteBtn.addEventListener('click', muteFn, false)
+        var isMute = false
+        function muteFn() {
+            isMute = !isMute
+            muteBtn.classList.toggle('fa-volume-off')
+            muteBtn.classList.toggle('fa-volume-up')
+            audioPlayer.muted = isMute
+            currentValBAr.style.visibility = isMute
+                                           ? 'hidden'
+                                           : 'visible'
+            return false
+        }
+    }
+</script>
+<script>
+    var _hmt = _hmt || [];
+    (function() {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?bd0571c810dc4665e57401e3d50a60ac";
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+</html>
